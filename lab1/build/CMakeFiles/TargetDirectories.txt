@@ -1,0 +1,3 @@
+/home/syedahad7545/Documents/cpp/LabTasks/lab1/build/CMakeFiles/out.dir
+/home/syedahad7545/Documents/cpp/LabTasks/lab1/build/CMakeFiles/edit_cache.dir
+/home/syedahad7545/Documents/cpp/LabTasks/lab1/build/CMakeFiles/rebuild_cache.dir
