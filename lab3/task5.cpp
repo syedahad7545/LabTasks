@@ -1,20 +1,4 @@
 #include <iostream>
-
-/**
- * Task 5: Palindrome Check (Doubly Linked List)
- *
- * Implements a palindrome check using bidirectional traversal on a Doubly Linked List.
- *
- * Time Complexity: O(n) - Finding the tail takes O(n) steps, and walking inward
- *                         from both ends takes at most n/2 node comparisons.
- * Space Complexity: O(1) - Purely in-place pointer comparisons using two pointers
- *                         (left and right) without allocating any arrays or structures.
- *
- * Restrictions followed:
- * - No copying into arrays or auxiliary structures.
- * - No STL containers used.
- * - Empty list and single-node list are treated as palindromes.
- */
 template <typename T>
 class DoublyLinkedList {
 public:
@@ -132,10 +116,7 @@ public:
 };
 
 int main() {
-    std::cout << "================ Task 5: Palindrome Check (Doubly Linked List) ================" << std::endl;
 
-    // Test Case 1: Manual Example 1 (Odd-length palindrome: 1 2 3 2 1)
-    std::cout << "\n--- Test Case 1: Odd-Length Palindrome (1 2 3 2 1) ---" << std::endl;
     DoublyLinkedList<int> list1;
     list1.insertAtTail(1);
     list1.insertAtTail(2);
@@ -147,44 +128,6 @@ int main() {
     list1.display();
     std::cout << "isPalindrome(): " << (list1.isPalindrome() ? "true" : "false") << std::endl;
 
-    // Test Case 2: Manual Example 2 (Non-palindrome: 1 2 3 4)
-    std::cout << "\n--- Test Case 2: Non-Palindrome (1 2 3 4) ---" << std::endl;
-    DoublyLinkedList<int> list2;
-    list2.insertAtTail(1);
-    list2.insertAtTail(2);
-    list2.insertAtTail(3);
-    list2.insertAtTail(4);
-
-    std::cout << "List: ";
-    list2.display();
-    std::cout << "isPalindrome(): " << (list2.isPalindrome() ? "true" : "false") << std::endl;
-
-    // Test Case 3: Even-length Palindrome (1 2 2 1)
-    std::cout << "\n--- Test Case 3: Even-Length Palindrome (1 2 2 1) ---" << std::endl;
-    DoublyLinkedList<int> list3;
-    list3.insertAtTail(1);
-    list3.insertAtTail(2);
-    list3.insertAtTail(2);
-    list3.insertAtTail(1);
-
-    std::cout << "List: ";
-    list3.display();
-    std::cout << "isPalindrome(): " << (list3.isPalindrome() ? "true" : "false") << std::endl;
-
-    // Test Case 4: Single-node list (Boundary: Must return true)
-    std::cout << "\n--- Test Case 4: Single Node List (Boundary) ---" << std::endl;
-    DoublyLinkedList<int> list4;
-    list4.insertAtTail(99);
-    std::cout << "List: ";
-    list4.display();
-    std::cout << "isPalindrome(): " << (list4.isPalindrome() ? "true" : "false") << std::endl;
-
-    // Test Case 5: Empty list (Boundary: Must return true)
-    std::cout << "\n--- Test Case 5: Empty List (Boundary) ---" << std::endl;
-    DoublyLinkedList<int> list5;
-    std::cout << "List: ";
-    list5.display();
-    std::cout << "isPalindrome(): " << (list5.isPalindrome() ? "true" : "false") << std::endl;
 
     return 0;
 }
