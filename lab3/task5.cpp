@@ -63,30 +63,18 @@ public:
         newNode->prev = curr;
     }
 
-    /**
-     * Checks whether the doubly linked list reads the same forwards and backwards.
-     *
-     * Time Complexity:  O(n) - O(n) to find the tail and O(n/2) comparisons.
-     * Space Complexity: O(1) - Only two pointers used for inward traversal.
-     */
     bool isPalindrome() const {
-        // Required Behaviour: Empty list and single-node list are palindromes
         if (head == nullptr || head->next == nullptr) {
             return true;
         }
 
-        // Pointer starting at the front
         Node* left = head;
 
-        // Pointer starting at the tail
         Node* right = head;
         while (right->next != nullptr) {
             right = right->next;
         }
 
-        // Walk inward from both ends:
-        // - For odd-length lists: terminates when left and right meet at the same node (left == right)
-        // - For even-length lists: terminates when left and right cross each other (left->prev == right)
         while (left != right && left->prev != right) {
             if (left->data != right->data) {
                 return false;
