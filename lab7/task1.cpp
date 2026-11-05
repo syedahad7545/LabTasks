@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <limits>
 using namespace std;
 
 struct Book {
@@ -294,21 +293,11 @@ public:
     }
 };
 
-int readInt() {
-    int x;
-    while (!(cin >> x)) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Invalid input. Enter a number: ";
-    }
-    return x;
-}
-
 int main() {
     BST<Book> catalog;
     int choice = -1;
 
-    while (choice != 0) {
+    while (choice != 0 && cin) {
         cout << endl;
         cout << "1. Add new book" << endl;
         cout << "2. Remove book" << endl;
@@ -325,21 +314,23 @@ int main() {
         cout << "13. Clear Catalog" << endl;
         cout << "0. Exit" << endl;
         cout << "Enter choice: ";
-        choice = readInt();
+        cin >> choice;
 
         if (choice == 1) {
             cout << "Enter Book ID: ";
-            int id = readInt();
+            int id;
+            cin >> id;
             if (catalog.search(Book(id)) != nullptr) {
                 cout << "Book ID already exists. Record rejected." << endl;
                 continue;
             }
             cout << "Enter Title: ";
             string title;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore();
             getline(cin, title);
             cout << "Enter Copies Available: ";
-            int copies = readInt();
+            int copies = 0;
+            cin >> copies;
             if (copies < 0) {
                 cout << "Copies cannot be negative. Record rejected." << endl;
                 continue;
@@ -348,7 +339,8 @@ int main() {
             cout << "Book added successfully." << endl;
         } else if (choice == 2) {
             cout << "Enter Book ID to remove: ";
-            int id = readInt();
+            int id;
+            cin >> id;
             if (catalog.remove(Book(id))) {
                 cout << "Book removed successfully." << endl;
             } else {
@@ -356,7 +348,8 @@ int main() {
             }
         } else if (choice == 3) {
             cout << "Enter Book ID to search: ";
-            int id = readInt();
+            int id;
+            cin >> id;
             Book* b = catalog.search(Book(id));
             if (b != nullptr) {
                 cout << "Book found: " << *b << endl;
