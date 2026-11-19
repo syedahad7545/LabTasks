@@ -145,25 +145,25 @@ class AVLTree {
         return getHeight(node->left) - getHeight(node->right);
     }
 
-    Node* rotateRight(Node* node) {
+    void rotateRight(Node*& node) {
         Node* newRoot = node->left;
         node->left = newRoot->right;
         newRoot->right = node;
         updateHeight(node);
         updateHeight(newRoot);
-        return newRoot;
+        node = newRoot;
     }
 
-    Node* rotateLeft(Node* node) {
+    void rotateLeft(Node*& node) {
         Node* newRoot = node->right;
         node->right = newRoot->left;
         newRoot->left = node;
         updateHeight(node);
         updateHeight(newRoot);
-        return newRoot;
+        node = newRoot;
     }
 
-    Node* rebalance(Node* node) {
+    void rebalance(Node*& node) {
         updateHeight(node);
         int balance = getBalanceFactor(node);
 
@@ -173,14 +173,16 @@ class AVLTree {
                     cout << "Imbalance at request " << node->data.key() << ": LL case, right rotation performed." << endl;
                 }
                 llCount++;
-                return rotateRight(node);
+                rotateRight(node);
+                return;
             }
             if (showMessages) {
                 cout << "Imbalance at request " << node->data.key() << ": LR case, left-right rotation performed." << endl;
             }
             lrCount++;
-            node->left = rotateLeft(node->left);
-            return rotateRight(node);
+            rotateLeft(node->left);
+            rotateRight(node);
+            return;
         }
 
         if (balance == -2) {
@@ -189,17 +191,16 @@ class AVLTree {
                     cout << "Imbalance at request " << node->data.key() << ": RR case, left rotation performed." << endl;
                 }
                 rrCount++;
-                return rotateLeft(node);
+                rotateLeft(node);
+                return;
             }
             if (showMessages) {
                 cout << "Imbalance at request " << node->data.key() << ": RL case, right-left rotation performed." << endl;
             }
             rlCount++;
-            node->right = rotateRight(node->right);
-            return rotateLeft(node);
+            rotateRight(node->right);
+            rotateLeft(node);
         }
-
-        return node;
     }
 
     bool insert(Node*& node, T data) {
@@ -214,7 +215,7 @@ class AVLTree {
             inserted = insert(node->right, data);
         }
         if (inserted) {
-            node = rebalance(node);
+            rebalance(node);
         }
         return inserted;
     }
@@ -272,7 +273,7 @@ class AVLTree {
             remove(node->right, successor->data);
         }
         if (removed && node != nullptr) {
-            node = rebalance(node);
+            rebalance(node);
         }
         return removed;
     }
