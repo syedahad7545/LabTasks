@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <limits>
 using namespace std;
 
 struct Flight {
@@ -26,9 +25,6 @@ struct Flight {
         return flightNumber > other.flightNumber;
     }
 
-    bool operator==(const Flight& other) const {
-        return flightNumber == other.flightNumber;
-    }
 };
 
 ostream& operator<<(ostream& out, const Flight& f) {
@@ -72,31 +68,28 @@ class AVLTree {
     }
 
     int getBalanceFactor(Node* node) {
-        if (node == nullptr) {
-            return 0;
-        }
         return getHeight(node->left) - getHeight(node->right);
     }
 
-    Node* rotateRight(Node* node) {
+    void rotateRight(Node*& node) {
         Node* newRoot = node->left;
         node->left = newRoot->right;
         newRoot->right = node;
         updateHeight(node);
         updateHeight(newRoot);
-        return newRoot;
+        node = newRoot;
     }
 
-    Node* rotateLeft(Node* node) {
+    void rotateLeft(Node*& node) {
         Node* newRoot = node->right;
         node->right = newRoot->left;
         newRoot->left = node;
         updateHeight(node);
         updateHeight(newRoot);
-        return newRoot;
+        node = newRoot;
     }
 
-    Node* rebalance(Node* node) {
+    void rebalance(Node*& node) {
         updateHeight(node);
         int balance = getBalanceFactor(node);
 
@@ -104,27 +97,28 @@ class AVLTree {
             if (getBalanceFactor(node->left) >= 0) {
                 cout << "Imbalance at flight " << node->data.key() << ": LL case, right rotation performed." << endl;
                 llCount++;
-                return rotateRight(node);
+                rotateRight(node);
+                return;
             }
             cout << "Imbalance at flight " << node->data.key() << ": LR case, left-right rotation performed." << endl;
             lrCount++;
-            node->left = rotateLeft(node->left);
-            return rotateRight(node);
+            rotateLeft(node->left);
+            rotateRight(node);
+            return;
         }
 
         if (balance == -2) {
             if (getBalanceFactor(node->right) <= 0) {
                 cout << "Imbalance at flight " << node->data.key() << ": RR case, left rotation performed." << endl;
                 rrCount++;
-                return rotateLeft(node);
+                rotateLeft(node);
+                return;
             }
             cout << "Imbalance at flight " << node->data.key() << ": RL case, right-left rotation performed." << endl;
             rlCount++;
-            node->right = rotateRight(node->right);
-            return rotateLeft(node);
+            rotateRight(node->right);
+            rotateLeft(node);
         }
-
-        return node;
     }
 
     bool insert(Node*& node, T data) {
@@ -139,7 +133,7 @@ class AVLTree {
             inserted = insert(node->right, data);
         }
         if (inserted) {
-            node = rebalance(node);
+            rebalance(node);
         }
         return inserted;
     }
@@ -197,7 +191,7 @@ class AVLTree {
             remove(node->right, successor->data);
         }
         if (removed && node != nullptr) {
-            node = rebalance(node);
+            rebalance(node);
         }
         return removed;
     }
@@ -275,15 +269,15 @@ class AVLTree {
         return countLeafNodes(node->left) + countLeafNodes(node->right);
     }
 
-    Node* clone(Node* node) {
+    void clone(Node* node, Node*& copy) {
         if (node == nullptr) {
-            return nullptr;
+            copy = nullptr;
+            return;
         }
-        Node* copy = new Node(node->data);
+        copy = new Node(node->data);
         copy->height = node->height;
-        copy->left = clone(node->left);
-        copy->right = clone(node->right);
-        return copy;
+        clone(node->left, copy->left);
+        clone(node->right, copy->right);
     }
 
     void clear(Node*& node) {
@@ -310,24 +304,12 @@ public:
     }
 
     AVLTree(const AVLTree& other) {
-        root = clone(other.root);
+        clone(other.root, root);
         resetCounters();
-    }
-
-    AVLTree& operator=(const AVLTree& other) {
-        if (this != &other) {
-            clear();
-            root = clone(other.root);
-        }
-        return *this;
     }
 
     ~AVLTree() {
         clear();
-    }
-
-    bool isEmpty() {
-        return root == nullptr;
     }
 
     bool insert(T data) {
@@ -344,18 +326,12 @@ public:
 
     T* findMin() {
         Node* node = findMin(root);
-        if (node == nullptr) {
-            return nullptr;
-        }
-        return &node->data;
+        return node == nullptr ? nullptr : &node->data;
     }
 
     T* findMax() {
         Node* node = findMax(root);
-        if (node == nullptr) {
-            return nullptr;
-        }
-        return &node->data;
+        return node == nullptr ? nullptr : &node->data;
     }
 
     void inorder() {
@@ -407,24 +383,8 @@ public:
     }
 };
 
-int readInt() {
-    int x;
-    if (cin >> x) {
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        return x;
-    }
-    if (cin.eof()) {
-        return 0;
-    }
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Invalid input. Enter a number: ";
-    return readInt();
-}
-
 int main() {
     AVLTree<Flight> board;
-    AVLTree<Flight> lastCopy;
     int choice = -1;
 
     while (choice != 0) {
@@ -446,61 +406,55 @@ int main() {
         cout << "15. Clear Board" << endl;
         cout << "0. Exit" << endl;
         cout << "Enter choice: ";
-        choice = readInt();
+        cin >> choice;
 
+        int number;
         if (choice == 1) {
-            cout << "Enter Flight Number: ";
-            int number = readInt();
-            cout << "Enter Destination: ";
             string destination;
-            getline(cin, destination);
+            int seats;
+            cout << "Enter Flight Number: ";
+            cin >> number;
+            cout << "Enter Destination: ";
+            getline(cin >> ws, destination);
             cout << "Enter Seats Available: ";
-            int seats = readInt();
-            if (number <= 0 || destination.empty() || seats < 0) {
-                cout << "Invalid flight details. Record rejected." << endl;
-            } else if (board.insert(Flight(number, destination, seats))) {
+            cin >> seats;
+            if (board.insert(Flight(number, destination, seats))) {
                 cout << "Flight added successfully." << endl;
             } else {
                 cout << "Flight number already exists. Record rejected." << endl;
             }
         } else if (choice == 2) {
             cout << "Enter Flight Number to cancel: ";
-            int number = readInt();
+            cin >> number;
             if (board.remove(Flight(number))) {
                 cout << "Flight cancelled successfully." << endl;
             } else {
-                cout << "Flight " << number << " was not found." << endl;
+                cout << "Flight not found." << endl;
             }
         } else if (choice == 3) {
             cout << "Enter Flight Number to search: ";
-            int number = readInt();
+            cin >> number;
             Flight* f = board.search(Flight(number));
             if (f != nullptr) {
                 cout << "Flight found: " << *f << endl;
             } else {
-                cout << "Flight " << number << " was not found." << endl;
+                cout << "Flight not found." << endl;
             }
-        } else if (choice >= 4 && choice <= 7) {
-            if (board.isEmpty()) {
-                cout << "The board is empty." << endl;
-            } else if (choice == 4) {
-                board.inorder();
-            } else if (choice == 5) {
-                board.preorder();
-            } else if (choice == 6) {
-                board.postorder();
-            } else {
-                cout << "Tree structure (right subtree on top):" << endl;
-                board.printTree();
-            }
+        } else if (choice == 4) {
+            board.inorder();
+        } else if (choice == 5) {
+            board.preorder();
+        } else if (choice == 6) {
+            board.postorder();
+        } else if (choice == 7) {
+            cout << "Tree structure (right subtree on top):" << endl;
+            board.printTree();
         } else if (choice == 8) {
             cout << "Board height: " << board.height() << endl;
         } else if (choice == 9) {
             cout << "Total flights: " << board.countNodes() << endl;
         } else if (choice == 10) {
-            if (board.isEmpty()) {
-                cout << "The board is empty." << endl;
-            } else {
+            if (board.countNodes() > 0) {
                 cout << "Highest: " << *board.findMax() << endl;
                 cout << "Lowest: " << *board.findMin() << endl;
             }
@@ -515,22 +469,12 @@ int main() {
         } else if (choice == 13) {
             board.printRotationStats();
         } else if (choice == 14) {
-            if (!lastCopy.isEmpty()) {
-                cout << "Previous copy:" << endl;
-                lastCopy.inorder();
-            }
-            lastCopy = board.clone();
-            if (lastCopy.isEmpty()) {
-                cout << "The copied board is empty." << endl;
-            } else {
-                cout << "Copied board:" << endl;
-                lastCopy.inorder();
-            }
+            AVLTree<Flight> copy = board.clone();
+            cout << "Copied board:" << endl;
+            copy.inorder();
         } else if (choice == 15) {
             board.clear();
             cout << "All flight records deleted." << endl;
-        } else if (choice != 0) {
-            cout << "Invalid choice." << endl;
         }
     }
 
